@@ -1,0 +1,45 @@
+import pandas as pd
+import matplotlib.pylab as plt
+from sklearn.cluster import	KMeans
+crime = pd.read_csv("C:\\Users\\gopal\\Documents\\360DigiTMG\\mod 21\\crime_data.csv") #loading the data
+cri = crime.drop(["Unnamed: 0"], axis = 1) #removing unwanted variable varible and creating a new data for futhure analyics 
+# Normalization function 
+def norm_func(i):
+    x = (i - i.min())/ (i.max() - i.min())
+    return (x)
+
+# Normalized data frame (considering the numerical part of data)
+df_norm = norm_func(cri.iloc[:, 0:]) #applying min max to the new data
+
+#scree plot or elbow curve
+TWSS = []   #Assigning TWSS as NULL object
+k = list(range(2,8)) #
+for i in k:
+    kmeans = KMeans(n_clusters = i)
+    kmeans.fit(df_norm)
+    TWSS.append(kmeans.inertia_)
+TWSS
+
+# Scree plot 
+plt.plot(k, TWSS, 'r*-');plt.xlabel("No_of_Clusters");plt.ylabel("total_within_SS")
+
+# Selecting 4 clusters from the above scree plot which is the optimum number of clusters 
+model = KMeans(n_clusters = 4)
+model.fit(df_norm)
+
+model.labels_ # getting the labels of clusters assigned to each row 
+mb = pd.Series(model.labels_)  # converting numpy array into pandas series object 
+cri['clust'] = mb # creating a  new column and assigning it to new column 
+
+cri.head()
+df_norm.head()
+
+cri = cri.iloc[:,[4,0,1,2,3]] #rearrnaging the variables
+cri.head()
+
+cri.iloc[:, 1:].groupby(cri.clust).mean() #taking the mean of the each cluster
+
+cri.to_csv("Kmeans_university.csv", encoding = "utf-8") #saving the data to excel
+
+import os
+os.getcwd() 
